@@ -1,0 +1,44 @@
+---
+title: "sf-emissions-data"
+format: html
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(stringr)
+
+```
+
+```{r}
+# read in sf emissions data
+
+sf_emissions <- read_csv(here("data", "San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv"))
+
+#clean names to lower_snake
+sf_emissions <- clean_names(sf_emissions)
+
+```
+
+```{r}
+# new df created group_by sector_general and summarising emissions 
+gge_sg <- sf_emissions |> 
+  group_by(sector_general) |> 
+  summarise(emissions_mt_co2e) |> 
+  ungroup() #ungroup so that future groupings aren't affected
+
+# new df created group_by calendar_year and commodity_type and summarising emissions 
+gge_yct <- sf_emissions |> 
+  group_by(calendar_year, commodity_type) |> 
+  summarise(emissions_mt_co2e) |> 
+  ungroup()
+
+#subset of data 
+gge_2005 <- sf_emissions |> 
+  filter(sector_detail2 == (str_detect ("PG&E"))) |> 
+  mutate(select(calendar_year,
+         sector_detail2,
+         emissions_mt_co2e))
+```
+
